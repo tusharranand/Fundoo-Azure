@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "FundooMicroservices.FunctionApp.Users": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7244"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 34212,
+      "useSSL": false
+    }
+  }
+}

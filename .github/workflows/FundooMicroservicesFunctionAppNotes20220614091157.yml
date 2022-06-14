@@ -1,0 +1,43 @@
+name: Build and deploy .NET Core application to Function App FundooMicroservicesFunctionAppNotes20220614091157 with API Management Service FundooMicroservices-FundooMicroservicesFunctionAppNotes
+on:
+  push:
+    branches:
+    - master
+env:
+  AZURE_FUNCTIONAPP_NAME: FundooMicroservicesFunctionAppNotes20220614091157
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: FundooMicroservices.FunctionApp.Notes\.
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 6.0.x
+  WORKING_DIRECTORY: FundooMicroservices.FunctionApp.Notes
+  AZURE_APIM_RESOURCEGROUP: learn-91a1a616-7c12-4645-8183-acef6175abd9
+  AZURE_APIM_SERVICENAME: FundooMicroservices
+  AZURE_APIM_API_ID: FundooMicroservicesFunctionAppNotes
+  AZURE_APIM_RESOURCE_PATH: /Fundoo
+  AZURE_APIM_SWAGGERURL: https://fundoomicroservicesfunctionappnotes20220614091157.azurewebsites.net/api/swagger.json
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Restore
+      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+    - name: Build
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Publish
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}"
+    - name: Deploy to Azure Function App
+      uses: Azure/functions-action@v1
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        publish-profile: ${{ secrets.FundooMicroservicesFunctionAppNotes20220614091157_FFFF }}
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.FundooMicroservices_SPN }}
+    - name: Import API into Azure API Management
+      run: az apim api import --path "${{ env.AZURE_APIM_RESOURCE_PATH }}" --resource-group ${{ env.AZURE_APIM_RESOURCEGROUP }} --service-name ${{ env.AZURE_APIM_SERVICENAME }} --api-id ${{ env.AZURE_APIM_API_ID }} --specification-url "${{ env.AZURE_APIM_SWAGGERURL }}" --specification-format OpenApi --subscription-required false
