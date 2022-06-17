@@ -11,7 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FundooMicroservices.Shared"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FundooMicroservices.FunctionApp.Users", "FunctionApps\FundooMicroservices.FunctionApp.Users\FundooMicroservices.FunctionApp.Users.csproj", "{2E1668F0-BF85-490E-9379-7D53C6D142E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FundooMicroservices.FunctionApp.Notes", "FundooMicroservices.FunctionApp.Notes\FundooMicroservices.FunctionApp.Notes.csproj", "{7D5E70D9-F9E9-477B-BF2A-45987F162B3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FundooMicroservices.FunctionApp.Notes", "FundooMicroservices.FunctionApp.Notes\FundooMicroservices.FunctionApp.Notes.csproj", "{7D5E70D9-F9E9-477B-BF2A-45987F162B3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{6B0404AC-CD89-4642-B00D-D6D845EF8692}"
+	ProjectSection(SolutionItems) = preProject
+		components\statestore.yaml = components\statestore.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

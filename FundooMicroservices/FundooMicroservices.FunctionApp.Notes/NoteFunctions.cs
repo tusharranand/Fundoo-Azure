@@ -13,6 +13,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Dapr.AzureFunctions.Extension;
 
 namespace FundooMicroservices.FunctionApp.Notes
 {
@@ -34,7 +35,8 @@ namespace FundooMicroservices.FunctionApp.Notes
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(NoteModel), Description = "The OK response")]
         [OpenApiSecurity("JWT Bearer Token", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
         public async Task<IActionResult> AddNoteAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "notes")] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "notes")] HttpRequest req,
+            [DaprState("%StateStoreName%", Key = "Notes")] IAsyncCollector<NoteModel> state)
         {
             var jwtResponse = _jwtService.ValidateToken(req);
             if (!jwtResponse.IsAuthorized)
@@ -44,6 +46,8 @@ namespace FundooMicroservices.FunctionApp.Notes
             dynamic data = JsonConvert.DeserializeObject<NoteModel>(requestBody);
 
             var response = _note.AddNoteAsync(data, jwtResponse.Email);
+            response = JsonConvert.DeserializeObject<NoteModel>(response);
+            await state.AddAsync(response);
 
             return new OkObjectResult(response);
         }
@@ -53,7 +57,8 @@ namespace FundooMicroservices.FunctionApp.Notes
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(NoteModel), Description = "The OK response")]
         [OpenApiSecurity("JWT Bearer Token", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
         public async Task<IActionResult> GetAllNotes(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getNotes")] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getNotes")] HttpRequest req,
+            [DaprState("%StateStoreName%", Key = "Notes")] IAsyncCollector<NoteModel> state)
         {
             var jwtResponse = _jwtService.ValidateToken(req);
             if (!jwtResponse.IsAuthorized)
@@ -61,7 +66,7 @@ namespace FundooMicroservices.FunctionApp.Notes
 
             var response = _note.GetNotes(jwtResponse.Email);
 
-            return new OkObjectResult(response);
+            return new OkObjectResult(state);
         }
 
         [FunctionName("UpdateNoteAsync")]
